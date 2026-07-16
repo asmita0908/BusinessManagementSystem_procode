@@ -1,94 +1,58 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import './App.css';
-
-
-const API_BASE = window.location.hostname === 'localhost' ? "http://localhost:5000" : "https://business-management-system-procode.vercel.app";
 
 function App() {
   const [currentScreen, setCurrentScreen] = useState('Login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   
-  const [contracts, setContracts] = useState([]);
-  const [customers, setCustomers] = useState([]);
-  const [inventory, setInventory] = useState([]);
-  const [loyaltyTransactions, setLoyaltyTransactions] = useState([]);
-  const [rewards, setRewards] = useState([]);
-  const [membershipLevels, setMembershipLevels] = useState([]);
-  const [loading, setLoading] = useState(false);
+  
+  const [searchContract, setSearchContract] = useState('');
+  const [searchCustomer, setSearchCustomer] = useState('');
+
 
   const [loyaltyTab, setLoyaltyTab] = useState('Levels');
 
   
-  const [formContract, setFormContract] = useState({ name: '', client: '', status: 'Active', value: '' });
-  const [formCustomer, setFormCustomer] = useState({ name: '', code: '', email: '', city: '', level: 'Gold' });
+  const [contracts, setContracts] = useState([
+    { contractName: "Dell Supply", contractNumber: "CN1001", customer: "Raj Enterprises", vendor: "Dell India", contractType: "Supply Contract", startDate: "2026-01-01", endDate: "2026-12-31", contractValue: 500000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" },
+    { contractName: "HP Service", contractNumber: "CN1002", customer: "ABC Pvt Ltd", vendor: "HP India", contractType: "Service Contract", startDate: "2026-01-10", endDate: "2027-01-09", contractValue: 200000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" },
+    { contractName: "Lenovo Rental", contractNumber: "CN1003", customer: "Sharma Traders", vendor: "Lenovo India", contractType: "Rental Contract", startDate: "2026-01-15", endDate: "2026-07-15", contractValue: 150000, contractStatus: "Active", approvalStatus: "Pending", renewalRequired: "Yes" },
+    { contractName: "Acer Enterprise", contractNumber: "CN1004", customer: "Tech Solutions", vendor: "Acer India", contractType: "Enterprise Contract", startDate: "2026-01-20", endDate: "2027-01-20", contractValue: 1000000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" },
+    { contractName: "Asus Annual", contractNumber: "CN1005", customer: "Bright Ltd", vendor: "Asus India", contractType: "Annual Contract", startDate: "2026-02-01", endDate: "2027-01-31", contractValue: 400000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" },
+    { contractName: "Canon Service", contractNumber: "CN1006", customer: "Vision Corp", vendor: "Canon India", contractType: "Service Contract", startDate: "2026-02-05", endDate: "2027-02-04", contractValue: 220000, contractStatus: "Active", approvalStatus: "Pending", renewalRequired: "Yes" },
+    { contractName: "Epson Supply", contractNumber: "CN1007", customer: "Global India", vendor: "Epson India", contractType: "Supply Contract", startDate: "2026-02-10", endDate: "2027-02-09", contractValue: 350000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" },
+    { contractName: "Logitech Contract", contractNumber: "CN1008", customer: "Smart Systems", vendor: "Logitech India", contractType: "Premium Contract", startDate: "2026-02-15", endDate: "2027-02-14", contractValue: 600000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" },
+    { contractName: "Samsung Contract", contractNumber: "CN1009", customer: "Apex Ltd", vendor: "Samsung India", contractType: "Enterprise Contract", startDate: "2026-02-20", endDate: "2027-02-19", contractValue: 800000, contractStatus: "Active", approvalStatus: "Pending", renewalRequired: "Yes" },
+    { contractName: "LG Contract", contractNumber: "CN1010", customer: "Future Tech", vendor: "LG India", contractType: "Annual Contract", startDate: "2026-02-25", endDate: "2027-02-24", contractValue: 700000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" }
+  ]);
 
-  const loadFallbackData = () => {
-    setContracts([
-      { contractName: "Dell Supply", customer: "Raj Enterprises", vendor: "Dell India", contractValue: 500000, contractStatus: "Active" },
-      { contractName: "HP Service", customer: "ABC Pvt Ltd", vendor: "HP India", contractValue: 200000, contractStatus: "Active" },
-      { contractName: "Lenovo Rental", customer: "Sharma Traders", vendor: "Lenovo India", contractValue: 150000, contractStatus: "Active" },
-      { contractName: "Acer Enterprise", customer: "Tech Solutions", vendor: "Acer India", contractValue: 1000000, contractStatus: "Active" }
-    ]);
-    setCustomers([
-      { customerName: "Raj Enterprises", customerCode: "C001", email: "raj@gmail.com", city: "Bhopal", membershipLevel: "Gold" },
-      { customerName: "ABC Pvt Ltd", customerCode: "C002", email: "abc@gmail.com", city: "Indore", membershipLevel: "Silver" },
-      { customerName: "Sharma Traders", customerCode: "C003", email: "sharma@gmail.com", city: "Delhi", membershipLevel: "Platinum" },
-      { customerName: "Tech Solutions", customerCode: "C004", email: "tech@gmail.com", city: "Mumbai", membershipLevel: "Gold" }
-    ]);
-    setInventory([
-      { productName: "Dell Laptop Stock", availableQty: 50, warehouse: "Central Warehouse" },
-      { productName: "HP Printer Stock", availableQty: 35, warehouse: "North Warehouse" },
-      { productName: "Acer Monitor Stock", availableQty: 4, warehouse: "East Warehouse" }
-    ]);
-    setMembershipLevels([
-      { membershipLevel: "Bronze", minimumPoints: 0 },
-      { membershipLevel: "Silver", minimumPoints: 500 },
-      { membershipLevel: "Gold", minimumPoints: 1000 },
-      { membershipLevel: "Platinum", minimumPoints: 2000 },
-      { membershipLevel: "Diamond", minimumPoints: 5000 }
-    ]);
-    setRewards([
-      { rewardName: "₹100 Gift Voucher", requiredPoints: 500, description: "Shopping Voucher" },
-      { rewardName: "₹250 Gift Voucher", requiredPoints: 1000, description: "Shopping Voucher" },
-      { rewardName: "Free Product", requiredPoints: 3000, description: "Free Product Reward" },
-      { rewardName: "Premium Membership", requiredPoints: 5000, description: "1 Year Membership" }
-    ]);
-    setLoyaltyTransactions([
-      { customer: "Raj Enterprises", purchaseAmount: 340000, earnedPoints: 3400, remainingPoints: 2900 },
-      { customer: "ABC Pvt Ltd", purchaseAmount: 57000, earnedPoints: 570, remainingPoints: 570 }
-    ]);
-  };
+  const [customers, setCustomers] = useState([
+    { customerName: "Raj Enterprises", customerCode: "C001", email: "raj@gmail.com", phone: "9000000001", address: "MP Nagar", city: "Bhopal", country: "India", membershipLevel: "Gold", status: "Active" },
+    { customerName: "ABC Pvt Ltd", customerCode: "C002", email: "abc@gmail.com", phone: "9000000002", address: "Vijay Nagar", city: "Indore", country: "India", membershipLevel: "Silver", status: "Active" },
+    { customerName: "Sharma Traders", customerCode: "C003", email: "sharma@gmail.com", phone: "9000000003", address: "Connaught Place", city: "Delhi", country: "India", membershipLevel: "Platinum", status: "Active" },
+    { customerName: "Tech Solutions", customerCode: "C004", email: "tech@gmail.com", phone: "9000000004", address: "Andheri", city: "Mumbai", country: "India", membershipLevel: "Gold", status: "Active" },
+    { customerName: "Bright Ltd", customerCode: "C005", email: "bright@gmail.com", phone: "9000000005", address: "Baner", city: "Pune", country: "India", membershipLevel: "Silver", status: "Active" },
+    { customerName: "Vision Corp", customerCode: "C006", email: "vision@gmail.com", phone: "9000000006", address: "MP Nagar", city: "Bhopal", country: "India", membershipLevel: "Gold", status: "Active" },
+    { customerName: "Global India", customerCode: "C007", email: "global@gmail.com", phone: "9000000007", address: "Ring Road", city: "Indore", country: "India", membershipLevel: "Platinum", status: "Active" },
+    { customerName: "Smart Systems", customerCode: "C008", email: "smart@gmail.com", phone: "9000000008", address: "Rohini", city: "Delhi", country: "India", membershipLevel: "Gold", status: "Active" },
+    { customerName: "Apex Ltd", customerCode: "C009", email: "apex@gmail.com", phone: "9000000009", address: "Powai", city: "Mumbai", country: "India", membershipLevel: "Silver", status: "Active" },
+    { customerName: "Future Tech", customerCode: "C010", email: "future@gmail.com", phone: "9000000010", address: "Hinjewadi", city: "Pune", country: "India", membershipLevel: "Platinum", status: "Active" }
+  ]);
 
-  const fetchAllData = async () => {
-    setLoading(true);
-    try {
-      const fetchJson = async (endpoint) => {
-        const res = await fetch(`${API_BASE}/api/${endpoint}`);
-        return res.ok ? await res.json() : null;
-      };
+  const [loyaltyTransactions, setLoyaltyTransactions] = useState([
+    { customer: "Raj Enterprises", reward: "₹100 Gift Voucher", purchaseAmount: 340000, earnedPoints: 3400, redeemedPoints: 500, remainingPoints: 2900 },
+    { customer: "ABC Pvt Ltd", reward: "Coffee Coupon", purchaseAmount: 57000, earnedPoints: 570, redeemedPoints: 0, remainingPoints: 570 },
+    { customer: "Sharma Traders", reward: "₹250 Gift Voucher", purchaseAmount: 114000, earnedPoints: 1140, redeemedPoints: 1000, remainingPoints: 140 }
+  ]);
 
-      const cData = await fetchJson('contract');
-      const custData = await fetchJson('customer');
-      const invData = await fetchJson('inventory');
+  
+  const [formContract, setFormContract] = useState({ name: '', number: '', title: '', value: '', start: '', end: '', customer: '', approval: 'Approved' });
+  const [formCustomer, setFormCustomer] = useState({ name: '', code: '', email: '', phone: '', address: '', city: '', country: 'India', level: 'Gold' });
 
-      if (cData && cData.length > 0) setContracts(cData);
-      else loadFallbackData();
 
-      if (custData && custData.length > 0) setCustomers(custData);
-      if (invData && invData.length > 0) setInventory(invData);
-    } catch (err) {
-      loadFallbackData();
-    }
-    setLoading(false);
-  };
-
-  useEffect(() => {
-    if (currentScreen !== 'Login') {
-      fetchAllData();
-    }
-  }, [currentScreen]);
+  const filteredContracts = contracts.filter(c => c.customer.toLowerCase().includes(searchContract.toLowerCase()));
+  const filteredCustomers = customers.filter(cust => cust.customerName.toLowerCase().includes(searchCustomer.toLowerCase()));
 
   const handleLogin = (e) => {
     e.preventDefault();
@@ -96,71 +60,63 @@ function App() {
   };
 
   const saveNewContract = () => {
-    if (!formContract.name || !formContract.client) {
-      alert("Please fill required fields.");
+    if (!formContract.name || !formContract.customer) {
+      alert("Please enter values for mandatory parameter columns.");
       return;
     }
-    const newRecord = {
+    const record = {
       contractName: formContract.name,
-      customer: formContract.client,
+      contractNumber: formContract.number || `CN${1000 + contracts.length + 1}`,
+      customer: formContract.customer,
       vendor: "Dell India",
-      contractValue: parseInt(formContract.value) || 120000,
-      contractStatus: formContract.status
+      contractType: "Supply Contract",
+      startDate: formContract.start || "2026-01-01",
+      endDate: formContract.end || "2026-12-31",
+      contractValue: parseInt(formContract.value) || 250000,
+      contractStatus: "Active",
+      approvalStatus: formContract.approval,
+      renewalRequired: "Yes"
     };
-    setContracts([newRecord, ...contracts]);
-    setFormContract({ name: '', client: '', status: 'Active', value: '' });
+    setContracts([record, ...contracts]);
+    setFormContract({ name: '', number: '', title: '', value: '', start: '', end: '', customer: 'Raj Enterprises', approval: 'Approved' });
     setCurrentScreen('Contracts');
   };
 
   const saveNewCustomer = () => {
     if (!formCustomer.name || !formCustomer.email) {
-      alert("Please fill required fields.");
+      alert("Please enter configuration profile fields.");
       return;
     }
-    const newRecord = {
+    const record = {
       customerName: formCustomer.name,
-      customerCode: formCustomer.code || `C00${customers.length + 1}`,
+      customerCode: formCustomer.code || `C0${customers.length + 1}`,
       email: formCustomer.email,
+      phone: formCustomer.phone || "9876543210",
+      address: formCustomer.address || "Main Zone",
       city: formCustomer.city || "Indore",
-      membershipLevel: formCustomer.level
+      country: formCustomer.country,
+      membershipLevel: formCustomer.level,
+      status: "Active"
     };
-    setCustomers([newRecord, ...customers]);
-    setFormCustomer({ name: '', code: '', email: '', city: '', level: 'Gold' });
+    setCustomers([record, ...customers]);
+    setFormCustomer({ name: '', code: '', email: '', phone: '', address: '', city: '', country: 'India', level: 'Gold' });
     setCurrentScreen('Customers');
   };
 
   return (
-    <div className="app-container" style={{ display: 'flex', height: '100vh', fontFamily: 'Segoe UI, sans-serif', margin: 0, backgroundColor: '#f0f4fa' }}>
+    <div className="app-container" style={{ display: 'flex', height: '100vh', margin: 0, backgroundColor: '#f0f4fa' }}>
       
       {currentScreen !== 'Login' && (
         <div className="sidebar" style={{ width: '260px', backgroundColor: '#111625', color: 'white', padding: '20px', display: 'flex', flexDirection: 'column' }}>
-          <h2 style={{ fontSize: '22px', borderBottom: '1px solid #232a3d', paddingBottom: '15px', marginTop: 0, display: 'flex', alignItems: 'center', gap: '10px', color: '#ffffff' }}>
-            <span style={{ color: '#f59e0b' }}>⚡</span> BMS
-          </h2>
+          <h2 style={{ fontSize: '22px', borderBottom: '1px solid #232a3d', paddingBottom: '15px', marginTop: 0, color: '#ffffff' }}>⚡ BMS Portal</h2>
           <ul style={{ listStyle: 'none', padding: 0, margin: 0, flexGrow: 1 }}>
             {[
               { id: 'Dashboard', label: 'Dashboard', icon: '📊' },
               { id: 'Contracts', label: 'Contracts', icon: '📄' },
               { id: 'Customers', label: 'Customers', icon: '👥' },
-              { id: 'Loyalty', label: 'Loyalty Program', icon: '🎁' },
-              { id: 'Inventory', label: 'Inventory', icon: '📦' }
+              { id: 'Loyalty', label: 'Loyalty Program', icon: '🎁' }
             ].map((item) => (
-              <li
-                key={item.id}
-                onClick={() => setCurrentScreen(item.id)}
-                style={{
-                  padding: '12px 15px',
-                  cursor: 'pointer',
-                  borderRadius: '8px',
-                  margin: '6px 0',
-                  display: 'flex',
-                  alignItems: 'center',
-                  gap: '12px',
-                  backgroundColor: currentScreen === item.id || (item.id === 'Loyalty' && ['Loyalty'].includes(currentScreen)) ? '#1b2336' : 'transparent',
-                  color: currentScreen === item.id ? '#3b82f6' : '#9ca3af',
-                  fontWeight: '500'
-                }}
-              >
+              <li key={item.id} onClick={() => setCurrentScreen(item.id)} style={{ padding: '12px 15px', cursor: 'pointer', borderRadius: '8px', margin: '6px 0', display: 'flex', alignItems: 'center', gap: '12px', backgroundColor: currentScreen === item.id ? '#1b2336' : 'transparent', color: currentScreen === item.id ? '#3b82f6' : '#9ca3af', fontWeight: '500' }}>
                 <span>{item.icon}</span>{item.label}
               </li>
             ))}
@@ -169,24 +125,21 @@ function App() {
         </div>
       )}
 
-      <div style={{ flex: 1, padding: currentScreen === 'Login' ? 0 : '40px', overflowY: 'auto', background: 'linear-gradient(135deg, #f0f4fa 0%, #e2ebf7 100%)' }}>
+      <div style={{ flex: 1, padding: currentScreen === 'Login' ? 0 : '40px', overflowY: 'auto' }}>
         
         {currentScreen === 'Login' && (
           <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <div style={{ display: 'flex', maxWidth: '850px', width: '100%', backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 12px 32px rgba(0,0,0,0.05)', overflow: 'hidden', height: '460px' }}>
-              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', background: 'linear-gradient(135deg, #e0ebf8 0%, #cbdff7 100%)' }}>
-                <div style={{ fontSize: '70px', marginBottom: '10px' }}>🛡️</div>
-                <h2 style={{ color: '#111625', margin: '10px 0 5px 0', fontSize: '24px', fontWeight: '700' }}>Business Management</h2>
-                <p style={{ color: '#4b5563', margin: 0 }}>System</p>
+            <div style={{ display: 'flex', maxWidth: '850px', width: '100%', backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 12px 32px rgba(0,0,0,0.05)', height: '460px' }}>
+              <div style={{ flex: 1, display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '40px', background: 'linear-gradient(135deg, #e0ebf8 0%, #cbdff7 100%)', borderRadius: '16px 0 0 16px' }}>
+                <div style={{ fontSize: '70px' }}>🛡️</div>
+                <h2 style={{ color: '#111625', margin: '10px 0', fontSize: '24px', fontWeight: '700' }}>Business Management</h2>
               </div>
-              <div style={{ flex: 1, padding: '50px', display: 'flex', flexDirection: 'column', justifyContent: 'center', backgroundColor: '#ffffff' }}>
-                <h3 style={{ margin: '0 0 20px 0', fontSize: '22px', color: '#111625', fontWeight: '600' }}>Welcome Back!</h3>
+              <div style={{ flex: 1, padding: '50px', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+                <h3 style={{ margin: '0 0 20px 0', fontSize: '22px' }}>Welcome Back!</h3>
                 <form onSubmit={handleLogin}>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#4b5563' }}>Enter Email</label>
-                  <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '12px', marginBottom: '20px', border: '1px solid #d1d5db', borderRadius: '8px' }} />
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', color: '#4b5563' }}>Enter Password</label>
-                  <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%', padding: '12px', marginBottom: '25px', border: '1px solid #d1d5db', borderRadius: '8px' }} />
-                  <button type="submit" style={{ width: '100%', padding: '12px', background: '#2b354a', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>Sign In →</button>
+                  <input type="email" placeholder="Email" value={email} onChange={(e) => setEmail(e.target.value)} required style={{ width: '100%', padding: '12px', marginBottom: '15px', border: '1px solid #d1d5db', borderRadius: '8px' }} />
+                  <input type="password" placeholder="Password" value={password} onChange={(e) => setPassword(e.target.value)} required style={{ width: '100%', padding: '12px', marginBottom: '20px', border: '1px solid #d1d5db', borderRadius: '8px' }} />
+                  <button type="submit" style={{ width: '100%', padding: '12px', background: '#2b354a', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>Sign In</button>
                 </form>
               </div>
             </div>
@@ -195,20 +148,19 @@ function App() {
 
         {currentScreen === 'Dashboard' && (
           <div>
-            <h2 style={{ margin: '0 0 5px 0', color: '#111625', fontSize: '26px', fontWeight: '700' }}>Welcome back, User! 👋</h2>
-            <p style={{ color: '#4b5563', margin: '0 0 35px 0' }}>Manage operations and analytical modules across active departments.</p>
-            <div style={{ display: 'flex', gap: '25px' }}>
+            <h2 style={{ color: '#111625', fontWeight: '700' }}>Dashboard Overview 👋</h2>
+            <div style={{ display: 'flex', gap: '25px', marginTop: '30px' }}>
               {[
-                { title: 'Contract Management', desc: 'Manage, edit, and create all corporate client contracts dynamically.', border: '#3b82f6', target: 'Contracts' },
-                { title: 'Customer Loyalty', desc: 'Track loyalty points, reward structures, and customer tier segments.', border: '#10b981', target: 'Loyalty' },
-                { title: 'Inventory Management', desc: 'Monitor stock status, warehouse levels, and supply orders in real-time.', border: '#f97316', target: 'Inventory' }
+                { title: 'Contract Management', desc: 'Total Contracts Mapped: 10 Records Live.', border: '#3b82f6', target: 'Contracts' },
+                { title: 'Customer Loyalty', desc: 'Active Loyalty Matrix Configuration Framework.', border: '#10b981', target: 'Loyalty' },
+                { title: 'CRM Framework', desc: '10 Enterprise Accounts Fully Configured.', border: '#f97316', target: 'Customers' }
               ].map((mod, i) => (
-                <div key={i} style={{ backgroundColor: 'white', padding: '30px', flex: 1, borderRadius: '16px', boxShadow: '0 8px 24px rgba(149,157,165,0.05)', borderTop: `4px solid ${mod.border}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', minHeight: '180px' }}>
+                <div key={i} style={{ backgroundColor: 'white', padding: '30px', flex: 1, borderRadius: '16px', borderTop: `4px solid ${mod.border}`, display: 'flex', flexDirection: 'column', justifyContent: 'space-between', height: '160px' }}>
                   <div>
-                    <h3 style={{ margin: '0 0 12px 0', color: '#111625', fontSize: '18px', fontWeight: '600' }}>{mod.title}</h3>
-                    <p style={{ color: '#6b7280', fontSize: '14px', marginBottom: '20px' }}>{mod.desc}</p>
+                    <h3 style={{ margin: '0 0 8px 0', color: '#111625' }}>{mod.title}</h3>
+                    <p style={{ color: '#6b7280', fontSize: '14px' }}>{mod.desc}</p>
                   </div>
-                  <button onClick={() => setCurrentScreen(mod.target)} style={{ background: mod.border, color: 'white', border: 'none', padding: '10px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>Open Module</button>
+                  <button onClick={() => setCurrentScreen(mod.target)} style={{ background: mod.border, color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: '600', width: 'fit-content', cursor: 'pointer' }}>Open Screen</button>
                 </div>
               ))}
             </div>
@@ -218,31 +170,39 @@ function App() {
         {currentScreen === 'Contracts' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-              <h2 style={{ margin: 0, color: '#111625', fontWeight: '700' }}>📄 Real-Time Cloud Contracts ({contracts.length})</h2>
-              {/* BUTTON TRIGGER RE-ROUTING FIX */}
-              <button onClick={() => setCurrentScreen('AddContractForm')} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>+ New Contract</button>
+              <h2 style={{ margin: 0, color: '#111625', fontWeight: '700' }}>Contracts Master Grid</h2>
+              <button onClick={() => setCurrentScreen('AddContractForm')} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>+ New Contract</button>
             </div>
-            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', boxShadow: '0 8px 24px rgba(0,0,0,0.02)' }}>
+            
+            {/* SEARCH ENGINE BAR INTEGRATION */}
+            <div style={{ marginBottom: '20px' }}>
+              <input type="text" placeholder="🔍 Search by Client Name..." value={searchContract} onChange={(e) => setSearchContract(e.target.value)} style={{ width: '100%', maxWidth: '400px', padding: '10px 15px', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#ffffff' }} />
+            </div>
+
+            {/* HIGH-FIDELITY DATA SCROLL GRID */}
+            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', maxHeight: '480px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                     <th style={{ padding: '16px' }}>Contract Name</th>
-                    <th style={{ padding: '16px' }}>Customer</th>
-                    <th style={{ padding: '16px' }}>Vendor</th>
-                    <th style={{ padding: '16px' }}>Value</th>
+                    <th style={{ padding: '16px' }}>Customer Name</th>
                     <th style={{ padding: '16px' }}>Status</th>
+                    <th style={{ padding: '16px' }}>End Date</th>
+                    <th style={{ padding: '16px' }}>Value</th>
                   </tr>
                 </thead>
                 <tbody>
-                  {contracts.map((row, idx) => (
+                  {filteredContracts.map((row, idx) => (
                     <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
                       <td style={{ padding: '16px', fontWeight: '600' }}>{row.contractName}</td>
-                      <td style={{ padding: '16px' }}>{row.customer || 'N/A'}</td>
-                      <td style={{ padding: '16px' }}>{row.vendor || 'Dell India'}</td>
-                      <td style={{ padding: '16px', fontWeight: '600' }}>₹{row.contractValue?.toLocaleString()}</td>
+                      <td style={{ padding: '16px' }}>{row.customer}</td>
                       <td style={{ padding: '16px' }}>
-                        <span style={{ padding: '4px 10px', borderRadius: '12px', fontSize: '12px', backgroundColor: '#dcfce7', color: '#15803d', fontWeight: '600' }}>{row.contractStatus || 'Active'}</span>
+                        <span style={{ padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '600', backgroundColor: row.approvalStatus === 'Pending' ? '#fef3c7' : '#dcfce7', color: row.approvalStatus === 'Pending' ? '#b45309' : '#15803d' }}>
+                          {row.approvalStatus || 'Active'}
+                        </span>
                       </td>
+                      <td style={{ padding: '16px', color: '#64748b' }}>{row.endDate}</td>
+                      <td style={{ padding: '16px', fontWeight: '700' }}>₹{row.contractValue.toLocaleString()}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -254,11 +214,17 @@ function App() {
         {currentScreen === 'Customers' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-              <h2 style={{ margin: 0, color: '#111625', fontWeight: '700' }}>👥 Real-Time CRM Customers ({customers.length})</h2>
-              {/* BUTTON TRIGGER RE-ROUTING FIX */}
-              <button onClick={() => setCurrentScreen('AddCustomerForm')} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '8px', cursor: 'pointer', fontWeight: '600' }}>+ New Customer</button>
+              <h2 style={{ margin: 0, color: '#111625', fontWeight: '700' }}>Real-Time CRM Customers</h2>
+              <button onClick={() => setCurrentScreen('AddCustomerForm')} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>+ New Customer</button>
             </div>
-            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', boxShadow: '0 8px 24px rgba(0,0,0,0.02)' }}>
+
+            {/* SEARCH CUSTOMER BAR INTEGRATION */}
+            <div style={{ marginBottom: '20px' }}>
+              <input type="text" placeholder="🔍 Search Customer Name..." value={searchCustomer} onChange={(e) => setSearchCustomer(e.target.value)} style={{ width: '100%', maxWidth: '400px', padding: '10px 15px', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#ffffff' }} />
+            </div>
+
+            {/* DYNAMIC COMPACT DATA SCROLL MATRIX */}
+            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', maxHeight: '480px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
@@ -270,10 +236,10 @@ function App() {
                   </tr>
                 </thead>
                 <tbody>
-                  {customers.map((row, idx) => (
+                  {filteredCustomers.map((row, idx) => (
                     <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
                       <td style={{ padding: '16px', fontWeight: '600' }}>{row.customerName}</td>
-                      <td style={{ padding: '16px' }}>{row.customerCode}</td>
+                      <td style={{ padding: '16px', color: '#64748b' }}>{row.customerCode}</td>
                       <td style={{ padding: '16px' }}>{row.email}</td>
                       <td style={{ padding: '16px' }}>{row.city}</td>
                       <td style={{ padding: '16px' }}><span style={{ padding: '4px 10px', borderRadius: '12px', fontSize: '12px', backgroundColor: '#e0f2fe', color: '#0369a1', fontWeight: '600' }}>{row.membershipLevel}</span></td>
@@ -285,155 +251,202 @@ function App() {
           </div>
         )}
 
-        {/* RE-ROUTING ENGINE: CONTRACT ENGINE ENTRY LAYOUT FORM */}
-        {currentScreen === 'AddContractForm' && (
-          <div>
-            <h2 style={{ marginBottom: '25px', color: '#111625', fontWeight: '700' }}>➕ Create New Contract</h2>
-            <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.02)', maxWidth: '700px' }}>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>Contract Name</label>
-                <input type="text" value={formContract.name} onChange={(e) => setFormContract({ ...formContract, name: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-              </div>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>Customer Name</label>
-                <input type="text" value={formContract.client} onChange={(e) => setFormContract({ ...formContract, client: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>Contract Value (₹)</label>
-                <input type="text" value={formContract.value} onChange={(e) => setFormContract({ ...formContract, value: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-              </div>
-              <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
-                <button onClick={() => setCurrentScreen('Contracts')} style={{ padding: '10px 20px', backgroundColor: '#64748b', color: 'white', border: 'none', borderRadius: '8px' }}>Cancel</button>
-                <button onClick={saveNewContract} style={{ padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600' }}>Save</button>
-              </div>
-            </div>
-          </div>
-        )}
-
-        {/* RE-ROUTING ENGINE: CUSTOMER ENGINE ENTRY LAYOUT FORM */}
-        {currentScreen === 'AddCustomerForm' && (
-          <div>
-            <h2 style={{ marginBottom: '25px', color: '#111625', fontWeight: '700' }}>➕ Register New CRM Customer</h2>
-            <div style={{ backgroundColor: 'white', padding: '30px', borderRadius: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.02)', maxWidth: '700px' }}>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>Customer Name</label>
-                <input type="text" value={formCustomer.name} onChange={(e) => setFormCustomer({ ...formCustomer, name: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-              </div>
-              <div style={{ marginBottom: '15px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>Email Address</label>
-                <input type="email" value={formCustomer.email} onChange={(e) => setFormCustomer({ ...formCustomer, email: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-              </div>
-              <div style={{ marginBottom: '20px' }}>
-                <label style={{ display: 'block', marginBottom: '6px', fontWeight: '500' }}>City</label>
-                <input type="text" value={formCustomer.city} onChange={(e) => setFormCustomer({ ...formCustomer, city: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
-              </div>
-              <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
-                <button onClick={() => setCurrentScreen('Customers')} style={{ padding: '10px 20px', backgroundColor: '#64748b', color: 'white', border: 'none', borderRadius: '8px' }}>Cancel</button>
-                <button onClick={saveNewCustomer} style={{ padding: '10px 20px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600' }}>Register</button>
-              </div>
-            </div>
-          </div>
-        )}
-
+        {/* LOYALTY SUMMARY MATRICES WITH UTILITY ACTION BUTTONS */}
         {currentScreen === 'Loyalty' && (
           <div>
-            <h2 style={{ marginBottom: '5px', color: '#111625', fontWeight: '700' }}>🎁 Loyalty Rewards Management</h2>
+            <h2 style={{ color: '#111625', fontWeight: '700', marginBottom: '5px' }}>🏆 Customer Loyalty Dashboard</h2>
             <p style={{ color: '#4b5563', margin: '0 0 25px 0' }}>Configure matrices, point thresholds, and user redemption metrics rules.</p>
-            <div style={{ display: 'flex', gap: '15px', marginBottom: '30px', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px' }}>
-              {[
-                { id: 'Levels', label: '🏆 Membership Levels' },
-                { id: 'History', label: '📜 Transactions & History' },
-                { id: 'Rewards', label: '✨ Manage Rewards' }
-              ].map(tab => (
-                <button key={tab.id} onClick={() => setLoyaltyTab(tab.id)} style={{ padding: '10px 20px', border: 'none', borderRadius: '8px', cursor: 'pointer', background: loyaltyTab === tab.id ? '#111625' : 'transparent', color: loyaltyTab === tab.id ? '#fff' : '#475569', fontWeight: '600' }}>{tab.label}</button>
+            
+            {/* Top Stat Boxes Summary Layout Panel */}
+            <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+              <div style={{ background: '#e0f2fe', padding: '15px 25px', borderRadius: '12px', flex: 1, textAlign: 'center', fontWeight: '600' }}>Total Members: 10</div>
+              <div style={{ background: '#dcfce7', padding: '15px 25px', borderRadius: '12px', flex: 1, textAlign: 'center', fontWeight: '600' }}>Total Rewards: 10</div>
+              <div style={{ background: '#f3e8ff', padding: '15px 25px', borderRadius: '12px', flex: 1, textAlign: 'center', fontWeight: '600' }}>Total Points: 9000</div>
+            </div>
+
+            {/* POWER APPS MATCHING ACTION TRIGGERS BUTTONS */}
+            <div style={{ display: 'flex', gap: '15px', marginBottom: '25px' }}>
+              <button onClick={() => alert("Points successfully allocated across client parameters!")} style={{ background: '#16a34a', color: 'white', border: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '6px' }}>+ Earn Points</button>
+              <button onClick={() => alert("Redemption ledger configurations updated successfully!")} style={{ background: '#dc2626', color: 'white', border: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '6px' }}>- Redeem Points</button>
+            </div>
+
+            <div style={{ display: 'flex', gap: '15px', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', marginBottom: '20px' }}>
+              {['Levels', 'History', 'Rewards'].map(t => (
+                <button key={t} onClick={() => setLoyaltyTab(t)} style={{ padding: '8px 16px', border: 'none', borderRadius: '6px', cursor: 'pointer', background: loyaltyTab === t ? '#111625' : 'transparent', color: loyaltyTab === t ? '#fff' : '#475569', fontWeight: '600' }}>{t === 'Levels' ? '🏆 Membership Levels' : t === 'History' ? '📜 Transactions & History' : '✨ Manage Rewards'}</button>
               ))}
             </div>
 
-            {loyaltyTab === 'Levels' && (
-              <div style={{ display: 'flex', gap: '25px' }}>
-                <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', flex: 1 }}>
-                  <h3 style={{ marginTop: 0, marginBottom: '20px' }}>Active Tiers Schema</h3>
-                  {membershipLevels.map((lvl, idx) => (
-                    <div key={idx} style={{ padding: '14px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between' }}>
-                      <span style={{ fontWeight: '600' }}>{lvl.membershipLevel}</span>
-                      <span style={{ color: '#059669', fontWeight: '600' }}>Min Pts: {lvl.minimumPoints}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {loyaltyTab === 'History' && (
-              <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px' }}>
+            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', maxHeight: '350px', overflowY: 'auto' }}>
+              {loyaltyTab === 'Levels' && (
+                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                  <thead>
+                    <tr style={{ textAlign: 'left', borderBottom: '2px solid #e2e8f0' }}>
+                      <th style={{ padding: '12px' }}>Tier Label</th>
+                      <th style={{ padding: '12px' }}>Min Points Trigger</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[['Bronze', 0], ['Silver', 500], ['Gold', 1000], ['Platinum', 2000], ['Diamond', 5000]].map(([lbl, pt], i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '12px', fontWeight: '600' }}>{lbl} Member</td>
+                        <td style={{ padding: '12px', color: '#16a34a', fontWeight: '700' }}>{pt} Pts</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+              {loyaltyTab === 'History' && (
                 <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                   <thead>
-                    <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
-                      <th style={{ padding: '16px' }}>Customer</th>
-                      <th style={{ padding: '16px' }}>Purchased Vol</th>
-                      <th style={{ padding: '16px' }}>Earned Points</th>
+                    <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
+                      <th style={{ padding: '12px' }}>Customer Account</th>
+                      <th style={{ padding: '12px' }}>Purchased Volume</th>
+                      <th style={{ padding: '12px' }}>Earned Points</th>
+                      <th style={{ padding: '12px' }}>Remaining Balance</th>
                     </tr>
                   </thead>
                   <tbody>
                     {loyaltyTransactions.map((row, idx) => (
                       <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                        <td style={{ padding: '16px', fontWeight: '600' }}>{row.customer}</td>
-                        <td style={{ padding: '16px' }}>₹{row.purchaseAmount?.toLocaleString()}</td>
-                        <td style={{ padding: '16px', color: '#10b981', fontWeight: '600' }}>+{row.earnedPoints} Pts</td>
+                        <td style={{ padding: '12px', fontWeight: '600' }}>{row.customer}</td>
+                        <td style={{ padding: '12px' }}>₹{row.purchaseAmount.toLocaleString()}</td>
+                        <td style={{ padding: '12px', color: '#16a34a', fontWeight: '700' }}>+{row.earnedPoints}</td>
+                        <td style={{ padding: '12px', fontWeight: '700' }}>{row.remainingPoints} Pts</td>
                       </tr>
                     ))}
                   </tbody>
                 </table>
-              </div>
-            )}
-
-            {loyaltyTab === 'Rewards' && (
-              <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px' }}>
-                <h3 style={{ marginTop: 0, marginBottom: '20px' }}>Redemption Threshold Mappings</h3>
-                {rewards.map((rwd, idx) => (
-                  <div key={idx} style={{ padding: '14px', borderBottom: '1px solid #f1f5f9', display: 'flex', justifyContent: 'space-between' }}>
-                    <span style={{ fontWeight: '600' }}>{rwd.rewardName}</span>
-                    <span style={{ color: '#4f46e5', fontWeight: '600' }}>{rwd.requiredPoints} pts</span>
-                  </div>
-                ))}
-              </div>
-            )}
+              )}
+              {loyaltyTab === 'Rewards' && (
+                <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
+                  <thead>
+                    <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
+                      <th style={{ padding: '12px' }}>Reward Coupon Item</th>
+                      <th style={{ padding: '12px' }}>Threshold Required</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {[['₹100 Gift Voucher', 500], ['Shopping Voucher', 1000], ['₹250 Gift Voucher', 1000], ['Free Product Reward', 3000]].map(([item, pts], i) => (
+                      <tr key={i} style={{ borderBottom: '1px solid #f1f5f9' }}>
+                        <td style={{ padding: '12px', fontWeight: '600' }}>{item}</td>
+                        <td style={{ padding: '12px', color: '#4f46e5', fontWeight: '700' }}>{pts} pts</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              )}
+            </div>
           </div>
         )}
 
-        {currentScreen === 'Inventory' && (
+        {/* HIGH FIDELITY POWER APPS 2-COLUMN FULL INPUT GRID: NEW CONTRACT */}
+        {currentScreen === 'AddContractForm' && (
           <div>
-            <h2 style={{ marginBottom: '20px', color: '#111625', fontWeight: '700' }}>📦 Inventory Control Room</h2>
-            <div style={{ display: 'flex', gap: '25px', marginBottom: '35px' }}>
-              {[
-                { label: 'Total Products SKU', val: '10', color: '#3b82f6' },
-                { label: 'Total Stock Available', val: '150', color: '#10b981' },
-                { label: 'Low Stock Constraints', val: '2', color: '#ef4444' }
-              ].map((box, i) => (
-                <div key={i} style={{ flex: 1, backgroundColor: 'white', padding: '25px', borderRadius: '16px', borderLeft: `5px solid ${box.color}`, textAlign: 'center' }}>
-                  <span style={{ fontSize: '14px', color: '#6b7280', fontWeight: '500' }}>{box.label}</span>
-                  <div style={{ fontSize: '26px', fontWeight: '700', color: '#111625', marginTop: '6px' }}>{box.val}</div>
+            <h2 style={{ marginBottom: '25px', color: '#111625', fontWeight: '700' }}>➕ Create New Contract</h2>
+            <div style={{ backgroundColor: 'white', padding: '35px', borderRadius: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.02)', maxWidth: '900px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px', marginBottom: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Contract Name *</label>
+                  <input type="text" value={formContract.name} onChange={(e) => setFormContract({ ...formContract, name: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
                 </div>
-              ))}
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Contract Number *</label>
+                  <input type="text" value={formContract.number} onChange={(e) => setFormContract({ ...formContract, number: e.target.value })} placeholder="CN1011" style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px', marginBottom: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Contract Title</label>
+                  <input type="text" value={formContract.title} onChange={(e) => setFormContract({ ...formContract, title: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Contract Value (₹) *</label>
+                  <input type="text" value={formContract.value} onChange={(e) => setFormContract({ ...formContract, value: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px', marginBottom: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Start Date</label>
+                  <input type="date" value={formContract.start} onChange={(e) => setFormContract({ ...formContract, start: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>End Date</label>
+                  <input type="date" value={formContract.end} onChange={(e) => setFormContract({ ...formContract, end: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px', marginBottom: '30px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Lookup Customer Account *</label>
+                  <input type="text" value={formContract.customer} onChange={(e) => setFormContract({ ...formContract, customer: e.target.value })} placeholder="Find Items..." style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Approval Status</label>
+                  <select value={formContract.approval} onChange={(e) => setFormContract({ ...formContract, approval: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#f8fafc' }}>
+                    <option>Approved</option>
+                    <option>Pending Approval</option>
+                  </select>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
+                <button onClick={saveNewContract} style={{ padding: '12px 24px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>Save Contract</button>
+                <button onClick={() => setCurrentScreen('Contracts')} style={{ padding: '12px 24px', backgroundColor: '#64748b', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+              </div>
             </div>
-            <div style={{ backgroundColor: 'white', padding: '25px', borderRadius: '16px' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
-                <thead>
-                  <tr style={{ borderBottom: '2px solid #e2e8f0' }}>
-                    <th style={{ padding: '12px' }}>Product</th>
-                    <th style={{ padding: '12px' }}>Warehouse</th>
-                    <th style={{ padding: '12px' }}>Qty</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {inventory.map((row, idx) => (
-                    <tr key={idx} style={{ borderBottom: '1px solid #f1f5f9' }}>
-                      <td style={{ padding: '12px', fontWeight: '600' }}>{row.productName}</td>
-                      <td style={{ padding: '12px', color: '#4b5563' }}>{row.warehouse}</td>
-                      <td style={{ padding: '12px', color: row.availableQty <= 10 ? '#ef4444' : '#111625', fontWeight: '700' }}>{row.availableQty}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          </div>
+        )}
+
+        {/* HIGH FIDELITY POWER APPS 3-COLUMN FULL INPUT GRID: NEW CUSTOMER */}
+        {currentScreen === 'AddCustomerForm' && (
+          <div>
+            <h2 style={{ marginBottom: '25px', color: '#111625', fontWeight: '700' }}>➕ Add / Edit Customer</h2>
+            <div style={{ backgroundColor: 'white', padding: '35px', borderRadius: '16px', boxShadow: '0 8px 24px rgba(0,0,0,0.02)', maxWidth: '950px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '25px', marginBottom: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Customer Name *</label>
+                  <input type="text" value={formCustomer.name} onChange={(e) => setFormCustomer({ ...formCustomer, name: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Customer Code</label>
+                  <input type="text" value={formCustomer.code} onChange={(e) => setFormCustomer({ ...formCustomer, code: e.target.value })} placeholder="C011" style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Email Address *</label>
+                  <input type="email" value={formCustomer.email} onChange={(e) => setFormCustomer({ ...formCustomer, email: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '25px', marginBottom: '20px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Phone Number</label>
+                  <input type="text" value={formCustomer.phone} onChange={(e) => setFormCustomer({ ...formCustomer, phone: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Address</label>
+                  <input type="text" value={formCustomer.address} onChange={(e) => setFormCustomer({ ...formCustomer, address: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>City</label>
+                  <input type="text" value={formCustomer.city} onChange={(e) => setFormCustomer({ ...formCustomer, city: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                </div>
+              </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '25px', marginBottom: '30px' }}>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Country</label>
+                  <input type="text" value={formCustomer.country} onChange={(e) => setFormCustomer({ ...formCustomer, country: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
+                </div>
+                <div>
+                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Membership Level Tier</label>
+                  <select value={formCustomer.level} onChange={(e) => setFormCustomer({ ...formCustomer, level: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#f8fafc' }}>
+                    <option>Gold</option>
+                    <option>Silver</option>
+                    <option>Platinum</option>
+                    <option>Diamond</option>
+                  </select>
+                </div>
+              </div>
+              <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
+                <button onClick={saveNewCustomer} style={{ padding: '12px 24px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>Save</button>
+                <button onClick={() => setCurrentScreen('Customers')} style={{ padding: '12px 24px', backgroundColor: '#64748b', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer' }}>Cancel</button>
+              </div>
             </div>
           </div>
         )}
