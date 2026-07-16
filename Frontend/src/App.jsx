@@ -5,7 +5,8 @@ function App() {
   const [currentScreen, setCurrentScreen] = useState('Login');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  
+  const [loggedInUser, setLoggedInUser] = useState({ name: 'Guest', role: 'Viewer' }); // Naya Dynamic State
+
   // Search Engine Queries Mappings
   const [searchContract, setSearchContract] = useState('');
   const [searchCustomer, setSearchCustomer] = useState('');
@@ -57,9 +58,22 @@ function App() {
 
   const handleLogin = (e) => {
     e.preventDefault();
-    if (email && password) setCurrentScreen('Dashboard');
-  };
 
+    // Dynamic User Mapper matrix
+    if (email.toLowerCase().includes('priya')) {
+      setLoggedInUser({ name: 'Priya Singh', role: 'Contract Manager' });
+    } else if (email.toLowerCase().includes('aman')) {
+      setLoggedInUser({ name: 'Aman Verma', role: 'Inventory Manager' });
+    } else if (email.toLowerCase().includes('neha')) {
+      setLoggedInUser({ name: 'Neha Patel', role: 'Sales Executive' });
+    } else if (email.toLowerCase().includes('rahul')) {
+      setLoggedInUser({ name: 'Rahul Sharma', role: 'Admin/Manager' });
+    } else {
+      setLoggedInUser({ name: 'Asmita Baghsavar', role: 'System Admin' }); // Default fallback profile
+    }
+
+    setCurrentScreen('Dashboard');
+  };
   const saveNewContract = () => {
     if (!formContract.name || !formContract.customer) {
       alert("Please fill out required fields.");
@@ -74,7 +88,7 @@ function App() {
       startDate: formContract.start || "2026-01-01",
       endDate: formContract.end || "2026-12-31",
       contractValue: parseInt(formContract.value) || 250000,
-      contractStatus: "Inactive", 
+      contractStatus: "Inactive",
       approvalStatus: "Pending Approval",
       renewalRequired: "Yes"
     };
@@ -119,7 +133,7 @@ function App() {
 
   return (
     <div className="app-container" style={{ display: 'flex', height: '100vh', margin: 0, backgroundColor: '#f0f4fa' }}>
-      
+
       {currentScreen !== 'Login' && (
         <div className="sidebar" style={{ width: '260px', backgroundColor: '#111625', color: 'white', padding: '20px', display: 'flex', flexDirection: 'column' }}>
           <h2 style={{ fontSize: '22px', borderBottom: '1px solid #232a3d', paddingBottom: '15px', marginTop: 0, color: '#ffffff' }}>⚡ BMS Portal</h2>
@@ -135,15 +149,16 @@ function App() {
               </li>
             ))}
           </ul>
-          <div style={{ padding: '10px', background: '#1e293b', borderRadius: '8px', marginBottom: '15px', fontSize: '13px' }}>
-            👑 Approver: <strong>Rahul Sharma (Manager)</strong>
+          <div style={{ padding: '10px', background: '#1e293b', borderRadius: '8px', marginBottom: '15px', fontSize: '13px', color: '#94a3b8' }}>
+            👤 User: <strong>{loggedInUser.name}</strong> <br />
+            <span style={{ fontSize: '11px', color: '#3b82f6' }}>🛡️ Role: {loggedInUser.role}</span>
           </div>
           <button onClick={() => setCurrentScreen('Login')} style={{ background: '#d9534f', color: 'white', border: 'none', padding: '12px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}>Log Out</button>
         </div>
       )}
 
       <div style={{ flex: 1, padding: currentScreen === 'Login' ? 0 : '40px', overflowY: 'auto' }}>
-        
+
         {currentScreen !== 'Login' && expiredContractsCount > 0 && (
           <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', padding: '12px 20px', borderRadius: '12px', marginBottom: '25px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ color: '#991b1b', fontWeight: '600', fontSize: '14px' }}>
@@ -199,7 +214,7 @@ function App() {
               <h2 style={{ margin: 0, color: '#111625', fontWeight: '700' }}>Contracts Master Grid ({filteredContracts.length})</h2>
               <button onClick={() => setCurrentScreen('AddContractForm')} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>+ New Contract</button>
             </div>
-            
+
             <div style={{ marginBottom: '20px' }}>
               <input type="text" placeholder="🔍 Search by Client Name..." value={searchContract} onChange={(e) => setSearchContract(e.target.value)} style={{ width: '100%', maxWidth: '400px', padding: '10px 15px', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#ffffff' }} />
             </div>
@@ -292,7 +307,7 @@ function App() {
           <div>
             <h2 style={{ color: '#111625', fontWeight: '700', marginBottom: '5px' }}>🏆 Customer Loyalty Dashboard</h2>
             <p style={{ color: '#4b5563', margin: '0 0 25px 0' }}>Configure matrices, point thresholds, and user redemption metrics rules.</p>
-            
+
             <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
               <div style={{ background: '#e0f2fe', padding: '15px 25px', borderRadius: '12px', flex: 1, textAlign: 'center', fontWeight: '600' }}>Total Members: 10</div>
               <div style={{ background: '#dcfce7', padding: '15px 25px', borderRadius: '12px', flex: 1, textAlign: 'center', fontWeight: '600' }}>Total Rewards: 10</div>
