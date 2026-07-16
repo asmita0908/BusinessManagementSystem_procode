@@ -6,24 +6,22 @@ function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   
-  
+  // Search Engine Queries Mappings
   const [searchContract, setSearchContract] = useState('');
   const [searchCustomer, setSearchCustomer] = useState('');
-
-
   const [loyaltyTab, setLoyaltyTab] = useState('Levels');
 
-  
+  // Exact 10 Dataverse Records with explicit Pending, Expired, and Active matrix states
   const [contracts, setContracts] = useState([
     { contractName: "Dell Supply", contractNumber: "CN1001", customer: "Raj Enterprises", vendor: "Dell India", contractType: "Supply Contract", startDate: "2026-01-01", endDate: "2026-12-31", contractValue: 500000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" },
-    { contractName: "HP Service", contractNumber: "CN1002", customer: "ABC Pvt Ltd", vendor: "HP India", contractType: "Service Contract", startDate: "2026-01-10", endDate: "2027-01-09", contractValue: 200000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" },
-    { contractName: "Lenovo Rental", contractNumber: "CN1003", customer: "Sharma Traders", vendor: "Lenovo India", contractType: "Rental Contract", startDate: "2026-01-15", endDate: "2026-07-15", contractValue: 150000, contractStatus: "Active", approvalStatus: "Pending", renewalRequired: "Yes" },
+    { contractName: "HP Service", contractNumber: "CN1002", customer: "ABC Pvt Ltd", vendor: "HP India", contractType: "Service Contract", startDate: "2025-01-10", endDate: "2025-11-30", contractValue: 200000, contractStatus: "Expired", approvalStatus: "Approved", renewalRequired: "Yes" },
+    { contractName: "Lenovo Rental", contractNumber: "CN1003", customer: "Sharma Traders", vendor: "Lenovo India", contractType: "Rental Contract", startDate: "2026-01-15", endDate: "2026-07-15", contractValue: 150000, contractStatus: "Inactive", approvalStatus: "Pending Approval", renewalRequired: "Yes" },
     { contractName: "Acer Enterprise", contractNumber: "CN1004", customer: "Tech Solutions", vendor: "Acer India", contractType: "Enterprise Contract", startDate: "2026-01-20", endDate: "2027-01-20", contractValue: 1000000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" },
     { contractName: "Asus Annual", contractNumber: "CN1005", customer: "Bright Ltd", vendor: "Asus India", contractType: "Annual Contract", startDate: "2026-02-01", endDate: "2027-01-31", contractValue: 400000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" },
-    { contractName: "Canon Service", contractNumber: "CN1006", customer: "Vision Corp", vendor: "Canon India", contractType: "Service Contract", startDate: "2026-02-05", endDate: "2027-02-04", contractValue: 220000, contractStatus: "Active", approvalStatus: "Pending", renewalRequired: "Yes" },
+    { contractName: "Canon Service", contractNumber: "CN1006", customer: "Vision Corp", vendor: "Canon India", contractType: "Service Contract", startDate: "2026-02-05", endDate: "2027-02-04", contractValue: 220000, contractStatus: "Inactive", approvalStatus: "Pending Approval", renewalRequired: "Yes" },
     { contractName: "Epson Supply", contractNumber: "CN1007", customer: "Global India", vendor: "Epson India", contractType: "Supply Contract", startDate: "2026-02-10", endDate: "2027-02-09", contractValue: 350000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" },
     { contractName: "Logitech Contract", contractNumber: "CN1008", customer: "Smart Systems", vendor: "Logitech India", contractType: "Premium Contract", startDate: "2026-02-15", endDate: "2027-02-14", contractValue: 600000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" },
-    { contractName: "Samsung Contract", contractNumber: "CN1009", customer: "Apex Ltd", vendor: "Samsung India", contractType: "Enterprise Contract", startDate: "2026-02-20", endDate: "2027-02-19", contractValue: 800000, contractStatus: "Active", approvalStatus: "Pending", renewalRequired: "Yes" },
+    { contractName: "Samsung Contract", contractNumber: "CN1009", customer: "Apex Ltd", vendor: "Samsung India", contractType: "Enterprise Contract", startDate: "2026-02-20", endDate: "2027-02-19", contractValue: 800000, contractStatus: "Inactive", approvalStatus: "Pending Approval", renewalRequired: "Yes" },
     { contractName: "LG Contract", contractNumber: "CN1010", customer: "Future Tech", vendor: "LG India", contractType: "Annual Contract", startDate: "2026-02-25", endDate: "2027-02-24", contractValue: 700000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" }
   ]);
 
@@ -41,27 +39,25 @@ function App() {
   ]);
 
   const [loyaltyTransactions, setLoyaltyTransactions] = useState([
-    { customer: "Raj Enterprises", reward: "₹100 Gift Voucher", purchaseAmount: 340000, earnedPoints: 3400, redeemedPoints: 500, remainingPoints: 2900 },
-    { customer: "ABC Pvt Ltd", reward: "Coffee Coupon", purchaseAmount: 57000, earnedPoints: 570, redeemedPoints: 0, remainingPoints: 570 },
-    { customer: "Sharma Traders", reward: "₹250 Gift Voucher", purchaseAmount: 114000, earnedPoints: 1140, redeemedPoints: 1000, remainingPoints: 140 }
+    { customer: "Raj Enterprises", purchaseAmount: 340000, earnedPoints: 3400, remainingPoints: 2900 },
+    { customer: "ABC Pvt Ltd", purchaseAmount: 57000, earnedPoints: 570, remainingPoints: 570 },
+    { customer: "Sharma Traders", purchaseAmount: 114000, earnedPoints: 1140, remainingPoints: 140 }
   ]);
 
-  
-  const [formContract, setFormContract] = useState({ name: '', number: '', title: '', value: '', start: '', end: '', customer: '', approval: 'Approved' });
+  // Form Initial states configuration parameters
+  const [formContract, setFormContract] = useState({ name: '', number: '', title: '', value: '', start: '', end: '', customer: 'Raj Enterprises' });
   const [formCustomer, setFormCustomer] = useState({ name: '', code: '', email: '', phone: '', address: '', city: '', country: 'India', level: 'Gold' });
 
-
+  // Filter Pipeline Engines
   const filteredContracts = contracts.filter(c => c.customer.toLowerCase().includes(searchContract.toLowerCase()));
   const filteredCustomers = customers.filter(cust => cust.customerName.toLowerCase().includes(searchCustomer.toLowerCase()));
 
-  const handleLogin = (e) => {
-    e.preventDefault();
-    if (email && password) setCurrentScreen('Dashboard');
-  };
+  // Dynamic Count Mappings for Expiry Alerts Header Notification Banner
+  const expiredContractsCount = contracts.filter(c => c.contractStatus === "Expired").length;
 
   const saveNewContract = () => {
     if (!formContract.name || !formContract.customer) {
-      alert("Please enter values for mandatory parameter columns.");
+      alert("Please fill out required tracking entities.");
       return;
     }
     const record = {
@@ -70,21 +66,22 @@ function App() {
       customer: formContract.customer,
       vendor: "Dell India",
       contractType: "Supply Contract",
-      startDate: formContract.start || "2026-01-01",
-      endDate: formContract.end || "2026-12-31",
+      startDate: formContract.start || "2026-07-16",
+      endDate: formContract.end || "2027-07-16",
       contractValue: parseInt(formContract.value) || 250000,
-      contractStatus: "Active",
-      approvalStatus: formContract.approval,
+      contractStatus: "Inactive", 
+      approvalStatus: "Pending Approval", // Default initialization state as requested
       renewalRequired: "Yes"
     };
     setContracts([record, ...contracts]);
-    setFormContract({ name: '', number: '', title: '', value: '', start: '', end: '', customer: 'Raj Enterprises', approval: 'Approved' });
+    alert("Contract added permanently! Sent to Manager dashboard queue as 'Pending Approval'.");
+    setFormContract({ name: '', number: '', title: '', value: '', start: '', end: '', customer: 'Raj Enterprises' });
     setCurrentScreen('Contracts');
   };
 
   const saveNewCustomer = () => {
     if (!formCustomer.name || !formCustomer.email) {
-      alert("Please enter configuration profile fields.");
+      alert("Configuration keys required.");
       return;
     }
     const record = {
@@ -92,7 +89,7 @@ function App() {
       customerCode: formCustomer.code || `C0${customers.length + 1}`,
       email: formCustomer.email,
       phone: formCustomer.phone || "9876543210",
-      address: formCustomer.address || "Main Zone",
+      address: formCustomer.address || "Hub Center",
       city: formCustomer.city || "Indore",
       country: formCustomer.country,
       membershipLevel: formCustomer.level,
@@ -101,6 +98,19 @@ function App() {
     setCustomers([record, ...customers]);
     setFormCustomer({ name: '', code: '', email: '', phone: '', address: '', city: '', country: 'India', level: 'Gold' });
     setCurrentScreen('Customers');
+  };
+
+  // Workflow Decision Handler Actions
+  const handleWorkflowAction = (index, targetStatus) => {
+    const updated = [...contracts];
+    updated[index].approvalStatus = targetStatus;
+    if (targetStatus === 'Approved') {
+      updated[index].contractStatus = 'Active';
+    } else if (targetStatus === 'Rejected') {
+      updated[index].contractStatus = 'Inactive';
+    }
+    setContracts(updated);
+    alert(`Contract workflow successfully state-locked to: ${targetStatus}`);
   };
 
   return (
@@ -121,12 +131,25 @@ function App() {
               </li>
             ))}
           </ul>
+          <div style={{ padding: '10px', background: '#1e293b', borderRadius: '8px', marginBottom: '15px', fontSize: '13px' }}>
+            👑 Approver: <strong>Rahul Sharma (Manager)</strong>
+          </div>
           <button onClick={() => setCurrentScreen('Login')} style={{ background: '#d9534f', color: 'white', border: 'none', padding: '12px', borderRadius: '6px', cursor: 'pointer', fontWeight: '600' }}>Log Out</button>
         </div>
       )}
 
       <div style={{ flex: 1, padding: currentScreen === 'Login' ? 0 : '40px', overflowY: 'auto' }}>
         
+        {/* CONTRACT EXPIRY LIVE BANNER WARNING TRIGGER FOR MANAGER */}
+        {currentScreen !== 'Login' && expiredContractsCount > 0 && (
+          <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', padding: '12px 20px', borderRadius: '12px', marginBottom: '25px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.05)' }}>
+            <span style={{ color: '#991b1b', fontWeight: '600', fontSize: '14px' }}>
+              ⚠️ Critical Alert: {expiredContractsCount} Contract(s) have reached maturity expiration and require urgent renewal routing review!
+            </span>
+            <button onClick={() => setCurrentScreen('Contracts')} style={{ background: '#dc2626', color: 'white', border: 'none', padding: '6px 14px', borderRadius: '6px', fontSize: '12px', fontWeight: '600', cursor: 'pointer' }}>Review Now</button>
+          </div>
+        )}
+
         {currentScreen === 'Login' && (
           <div style={{ height: '100vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
             <div style={{ display: 'flex', maxWidth: '850px', width: '100%', backgroundColor: 'white', borderRadius: '16px', boxShadow: '0 12px 32px rgba(0,0,0,0.05)', height: '460px' }}>
@@ -160,7 +183,8 @@ function App() {
                     <h3 style={{ margin: '0 0 8px 0', color: '#111625' }}>{mod.title}</h3>
                     <p style={{ color: '#6b7280', fontSize: '14px' }}>{mod.desc}</p>
                   </div>
-                  <button onClick={() => setCurrentScreen(mod.target)} style={{ background: mod.border, color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: '600', width: 'fit-content', cursor: 'pointer' }}>Open Screen</button>
+                  {/* TEXT RE-ALIGNED TO STANDARD POWER APPS "OPEN MODULE" */}
+                  <button onClick={() => setCurrentScreen(mod.target)} style={{ background: mod.border, color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: '600', width: 'fit-content', cursor: 'pointer' }}>Open Module</button>
                 </div>
               ))}
             </div>
@@ -170,25 +194,24 @@ function App() {
         {currentScreen === 'Contracts' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-              <h2 style={{ margin: 0, color: '#111625', fontWeight: '700' }}>Contracts Master Grid</h2>
+              <h2 style={{ margin: 0, color: '#111625', fontWeight: '700' }}>Contracts Master Grid ({filteredContracts.length})</h2>
               <button onClick={() => setCurrentScreen('AddContractForm')} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>+ New Contract</button>
             </div>
             
-            {/* SEARCH ENGINE BAR INTEGRATION */}
             <div style={{ marginBottom: '20px' }}>
               <input type="text" placeholder="🔍 Search by Client Name..." value={searchContract} onChange={(e) => setSearchContract(e.target.value)} style={{ width: '100%', maxWidth: '400px', padding: '10px 15px', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#ffffff' }} />
             </div>
 
-            {/* HIGH-FIDELITY DATA SCROLL GRID */}
-            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', maxHeight: '480px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', maxHeight: '460px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
                     <th style={{ padding: '16px' }}>Contract Name</th>
                     <th style={{ padding: '16px' }}>Customer Name</th>
-                    <th style={{ padding: '16px' }}>Status</th>
+                    <th style={{ padding: '16px' }}>Lifecycle Status</th>
                     <th style={{ padding: '16px' }}>End Date</th>
-                    <th style={{ padding: '16px' }}>Value</th>
+                    <th style={{ padding: '16px' }}>Approval State</th>
+                    <th style={{ padding: '16px', textAlign: 'center' }}>Workflow Management Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -197,12 +220,27 @@ function App() {
                       <td style={{ padding: '16px', fontWeight: '600' }}>{row.contractName}</td>
                       <td style={{ padding: '16px' }}>{row.customer}</td>
                       <td style={{ padding: '16px' }}>
-                        <span style={{ padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '600', backgroundColor: row.approvalStatus === 'Pending' ? '#fef3c7' : '#dcfce7', color: row.approvalStatus === 'Pending' ? '#b45309' : '#15803d' }}>
-                          {row.approvalStatus || 'Active'}
+                        <span style={{ padding: '4px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '700', backgroundColor: row.contractStatus === 'Expired' ? '#fee2e2' : row.contractStatus === 'Active' ? '#dcfce7' : '#f1f5f9', color: row.contractStatus === 'Expired' ? '#ef4444' : row.contractStatus === 'Active' ? '#16a34a' : '#64748b' }}>
+                          {row.contractStatus}
                         </span>
                       </td>
                       <td style={{ padding: '16px', color: '#64748b' }}>{row.endDate}</td>
-                      <td style={{ padding: '16px', fontWeight: '700' }}>₹{row.contractValue.toLocaleString()}</td>
+                      <td style={{ padding: '16px' }}>
+                        <span style={{ padding: '4px 10px', borderRadius: '12px', fontSize: '12px', fontWeight: '600', backgroundColor: row.approvalStatus === 'Pending Approval' ? '#fef3c7' : row.approvalStatus === 'Rejected' ? '#fee2e2' : '#dcfce7', color: row.approvalStatus === 'Pending Approval' ? '#b45309' : row.approvalStatus === 'Rejected' ? '#b91c1c' : '#15803d' }}>
+                          {row.approvalStatus}
+                        </span>
+                      </td>
+                      {/* INTERACTIVE ACTIONS CELL: MANAGER DECISION HUBS */}
+                      <td style={{ padding: '16px', textAlign: 'center' }}>
+                        {row.approvalStatus === 'Pending Approval' ? (
+                          <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
+                            <button onClick={() => handleWorkflowAction(idx, 'Approved')} style={{ background: '#10b981', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>Approve ✅</button>
+                            <button onClick={() => handleWorkflowAction(idx, 'Rejected')} style={{ background: '#ef4444', color: 'white', border: 'none', padding: '6px 12px', borderRadius: '6px', fontSize: '12px', cursor: 'pointer', fontWeight: '600' }}>Reject ❌</button>
+                          </div>
+                        ) : (
+                          <span style={{ color: '#94a3b8', fontSize: '13px', fontWeight: '500' }}>Action Synced</span>
+                        )}
+                      </td>
                     </tr>
                   ))}
                 </tbody>
@@ -214,17 +252,15 @@ function App() {
         {currentScreen === 'Customers' && (
           <div>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '25px' }}>
-              <h2 style={{ margin: 0, color: '#111625', fontWeight: '700' }}>Real-Time CRM Customers</h2>
+              <h2 style={{ margin: 0, color: '#111625', fontWeight: '700' }}>Real-Time CRM Customers ({filteredCustomers.length})</h2>
               <button onClick={() => setCurrentScreen('AddCustomerForm')} style={{ background: '#3b82f6', color: 'white', border: 'none', padding: '10px 18px', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>+ New Customer</button>
             </div>
 
-            {/* SEARCH CUSTOMER BAR INTEGRATION */}
             <div style={{ marginBottom: '20px' }}>
               <input type="text" placeholder="🔍 Search Customer Name..." value={searchCustomer} onChange={(e) => setSearchCustomer(e.target.value)} style={{ width: '100%', maxWidth: '400px', padding: '10px 15px', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#ffffff' }} />
             </div>
 
-            {/* DYNAMIC COMPACT DATA SCROLL MATRIX */}
-            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', maxHeight: '480px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', maxHeight: '460px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
@@ -251,23 +287,20 @@ function App() {
           </div>
         )}
 
-        {/* LOYALTY SUMMARY MATRICES WITH UTILITY ACTION BUTTONS */}
         {currentScreen === 'Loyalty' && (
           <div>
             <h2 style={{ color: '#111625', fontWeight: '700', marginBottom: '5px' }}>🏆 Customer Loyalty Dashboard</h2>
             <p style={{ color: '#4b5563', margin: '0 0 25px 0' }}>Configure matrices, point thresholds, and user redemption metrics rules.</p>
             
-            {/* Top Stat Boxes Summary Layout Panel */}
             <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
               <div style={{ background: '#e0f2fe', padding: '15px 25px', borderRadius: '12px', flex: 1, textAlign: 'center', fontWeight: '600' }}>Total Members: 10</div>
               <div style={{ background: '#dcfce7', padding: '15px 25px', borderRadius: '12px', flex: 1, textAlign: 'center', fontWeight: '600' }}>Total Rewards: 10</div>
               <div style={{ background: '#f3e8ff', padding: '15px 25px', borderRadius: '12px', flex: 1, textAlign: 'center', fontWeight: '600' }}>Total Points: 9000</div>
             </div>
 
-            {/* POWER APPS MATCHING ACTION TRIGGERS BUTTONS */}
             <div style={{ display: 'flex', gap: '15px', marginBottom: '25px' }}>
-              <button onClick={() => alert("Points successfully allocated across client parameters!")} style={{ background: '#16a34a', color: 'white', border: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '6px' }}>+ Earn Points</button>
-              <button onClick={() => alert("Redemption ledger configurations updated successfully!")} style={{ background: '#dc2626', color: 'white', border: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '6px' }}>- Redeem Points</button>
+              <button onClick={() => alert("Points successfully allocated across client parameters!")} style={{ background: '#16a34a', color: 'white', border: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '6px', fontWeight: '600' }}>+ Earn Points</button>
+              <button onClick={() => alert("Redemption ledger configurations updated successfully!")} style={{ background: '#dc2626', color: 'white', border: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '6px', fontWeight: '600' }}>- Redeem Points</button>
             </div>
 
             <div style={{ display: 'flex', gap: '15px', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', marginBottom: '20px' }}>
@@ -339,7 +372,7 @@ function App() {
           </div>
         )}
 
-        {/* HIGH FIDELITY POWER APPS 2-COLUMN FULL INPUT GRID: NEW CONTRACT */}
+        {/* HIGH FIDELITY 2-COLUMN FORM ENGINE */}
         {currentScreen === 'AddContractForm' && (
           <div>
             <h2 style={{ marginBottom: '25px', color: '#111625', fontWeight: '700' }}>➕ Create New Contract</h2>
@@ -379,13 +412,6 @@ function App() {
                   <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Lookup Customer Account *</label>
                   <input type="text" value={formContract.customer} onChange={(e) => setFormContract({ ...formContract, customer: e.target.value })} placeholder="Find Items..." style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px' }} />
                 </div>
-                <div>
-                  <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500' }}>Approval Status</label>
-                  <select value={formContract.approval} onChange={(e) => setFormContract({ ...formContract, approval: e.target.value })} style={{ width: '100%', padding: '10px', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#f8fafc' }}>
-                    <option>Approved</option>
-                    <option>Pending Approval</option>
-                  </select>
-                </div>
               </div>
               <div style={{ display: 'flex', gap: '15px', justifyContent: 'flex-end' }}>
                 <button onClick={saveNewContract} style={{ padding: '12px 24px', backgroundColor: '#3b82f6', color: 'white', border: 'none', borderRadius: '8px', fontWeight: '600', cursor: 'pointer' }}>Save Contract</button>
@@ -395,7 +421,7 @@ function App() {
           </div>
         )}
 
-        {/* HIGH FIDELITY POWER APPS 3-COLUMN FULL INPUT GRID: NEW CUSTOMER */}
+        {/* HIGH FIDELITY 3-COLUMN CUSTOMER REGISTRATION GRID */}
         {currentScreen === 'AddCustomerForm' && (
           <div>
             <h2 style={{ marginBottom: '25px', color: '#111625', fontWeight: '700' }}>➕ Add / Edit Customer</h2>
