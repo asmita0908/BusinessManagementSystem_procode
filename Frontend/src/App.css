@@ -94,3 +94,20 @@ span[style*="border-radius: 12px"] {
   letter-spacing: 0.4px;
   display: inline-block;
 }
+/* Dropdown Select & Option Visibility Fix */
+select {
+  background-color: #ffffff !important;
+  color: #111625 !important;
+  border: 1px solid #cbd5e1 !important;
+  border-radius: 8px !important;
+  padding: 10px !important;
+  font-size: 14px !important;
+  cursor: pointer;
+  outline: none;
+}
+
+select option {
+  background-color: #ffffff !important;
+  color: #111625 !important;
+  padding: 10px !important;
+}
