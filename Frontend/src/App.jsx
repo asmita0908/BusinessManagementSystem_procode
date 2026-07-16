@@ -11,7 +11,7 @@ function App() {
   const [searchCustomer, setSearchCustomer] = useState('');
   const [loyaltyTab, setLoyaltyTab] = useState('Levels');
 
-  // Exact 10 Dataverse Records with explicit Pending, Expired, and Active matrix states
+  // Exact 10 Dataverse Records
   const [contracts, setContracts] = useState([
     { contractName: "Dell Supply", contractNumber: "CN1001", customer: "Raj Enterprises", vendor: "Dell India", contractType: "Supply Contract", startDate: "2026-01-01", endDate: "2026-12-31", contractValue: 500000, contractStatus: "Active", approvalStatus: "Approved", renewalRequired: "Yes" },
     { contractName: "HP Service", contractNumber: "CN1002", customer: "ABC Pvt Ltd", vendor: "HP India", contractType: "Service Contract", startDate: "2025-01-10", endDate: "2025-11-30", contractValue: 200000, contractStatus: "Expired", approvalStatus: "Approved", renewalRequired: "Yes" },
@@ -44,20 +44,25 @@ function App() {
     { customer: "Sharma Traders", purchaseAmount: 114000, earnedPoints: 1140, remainingPoints: 140 }
   ]);
 
-  // Form Initial states configuration parameters
+  // Form parameters
   const [formContract, setFormContract] = useState({ name: '', number: '', title: '', value: '', start: '', end: '', customer: 'Raj Enterprises' });
   const [formCustomer, setFormCustomer] = useState({ name: '', code: '', email: '', phone: '', address: '', city: '', country: 'India', level: 'Gold' });
 
-  // Filter Pipeline Engines
-  const filteredContracts = contracts.filter(c => c.customer.toLowerCase().includes(searchContract.toLowerCase()));
-  const filteredCustomers = customers.filter(cust => cust.customerName.toLowerCase().includes(searchCustomer.toLowerCase()));
+  // Safe Filter Search Parsers
+  const filteredContracts = (contracts || []).filter(c => c.customer && c.customer.toLowerCase().includes(searchContract.toLowerCase()));
+  const filteredCustomers = (customers || []).filter(cust => cust.customerName && cust.customerName.toLowerCase().includes(searchCustomer.toLowerCase()));
 
-  // Dynamic Count Mappings for Expiry Alerts Header Notification Banner
-  const expiredContractsCount = contracts.filter(c => c.contractStatus === "Expired").length;
+  // Safe Dynamic Count Mappings for Expiry Alerts
+  const expiredContractsCount = (contracts || []).filter(c => c.contractStatus === "Expired").length;
+
+  const handleLogin = (e) => {
+    e.preventDefault();
+    if (email && password) setCurrentScreen('Dashboard');
+  };
 
   const saveNewContract = () => {
     if (!formContract.name || !formContract.customer) {
-      alert("Please fill out required tracking entities.");
+      alert("Please fill out required fields.");
       return;
     }
     const record = {
@@ -66,11 +71,11 @@ function App() {
       customer: formContract.customer,
       vendor: "Dell India",
       contractType: "Supply Contract",
-      startDate: formContract.start || "2026-07-16",
-      endDate: formContract.end || "2027-07-16",
+      startDate: formContract.start || "2026-01-01",
+      endDate: formContract.end || "2026-12-31",
       contractValue: parseInt(formContract.value) || 250000,
       contractStatus: "Inactive", 
-      approvalStatus: "Pending Approval", // Default initialization state as requested
+      approvalStatus: "Pending Approval",
       renewalRequired: "Yes"
     };
     setContracts([record, ...contracts]);
@@ -100,7 +105,6 @@ function App() {
     setCurrentScreen('Customers');
   };
 
-  // Workflow Decision Handler Actions
   const handleWorkflowAction = (index, targetStatus) => {
     const updated = [...contracts];
     updated[index].approvalStatus = targetStatus;
@@ -140,9 +144,8 @@ function App() {
 
       <div style={{ flex: 1, padding: currentScreen === 'Login' ? 0 : '40px', overflowY: 'auto' }}>
         
-        {/* CONTRACT EXPIRY LIVE BANNER WARNING TRIGGER FOR MANAGER */}
         {currentScreen !== 'Login' && expiredContractsCount > 0 && (
-          <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', padding: '12px 20px', borderRadius: '12px', marginBottom: '25px', display: 'flex', alignItems: 'center', justifyContent: 'space-between', boxShadow: '0 4px 12px rgba(239, 68, 68, 0.05)' }}>
+          <div style={{ background: '#fef2f2', border: '1px solid #fca5a5', padding: '12px 20px', borderRadius: '12px', marginBottom: '25px', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
             <span style={{ color: '#991b1b', fontWeight: '600', fontSize: '14px' }}>
               ⚠️ Critical Alert: {expiredContractsCount} Contract(s) have reached maturity expiration and require urgent renewal routing review!
             </span>
@@ -183,7 +186,6 @@ function App() {
                     <h3 style={{ margin: '0 0 8px 0', color: '#111625' }}>{mod.title}</h3>
                     <p style={{ color: '#6b7280', fontSize: '14px' }}>{mod.desc}</p>
                   </div>
-                  {/* TEXT RE-ALIGNED TO STANDARD POWER APPS "OPEN MODULE" */}
                   <button onClick={() => setCurrentScreen(mod.target)} style={{ background: mod.border, color: 'white', border: 'none', padding: '10px 16px', borderRadius: '8px', fontWeight: '600', width: 'fit-content', cursor: 'pointer' }}>Open Module</button>
                 </div>
               ))}
@@ -202,7 +204,7 @@ function App() {
               <input type="text" placeholder="🔍 Search by Client Name..." value={searchContract} onChange={(e) => setSearchContract(e.target.value)} style={{ width: '100%', maxWidth: '400px', padding: '10px 15px', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#ffffff' }} />
             </div>
 
-            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', maxHeight: '460px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', maxHeight: '460px', overflowY: 'auto', boxAnatomy: 'none' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
@@ -211,7 +213,7 @@ function App() {
                     <th style={{ padding: '16px' }}>Lifecycle Status</th>
                     <th style={{ padding: '16px' }}>End Date</th>
                     <th style={{ padding: '16px' }}>Approval State</th>
-                    <th style={{ padding: '16px', textAlign: 'center' }}>Workflow Management Actions</th>
+                    <th style={{ padding: '16px', textAlign: 'center' }}>Workflow Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -230,7 +232,6 @@ function App() {
                           {row.approvalStatus}
                         </span>
                       </td>
-                      {/* INTERACTIVE ACTIONS CELL: MANAGER DECISION HUBS */}
                       <td style={{ padding: '16px', textAlign: 'center' }}>
                         {row.approvalStatus === 'Pending Approval' ? (
                           <div style={{ display: 'flex', gap: '10px', justifyContent: 'center' }}>
@@ -260,7 +261,7 @@ function App() {
               <input type="text" placeholder="🔍 Search Customer Name..." value={searchCustomer} onChange={(e) => setSearchCustomer(e.target.value)} style={{ width: '100%', maxWidth: '400px', padding: '10px 15px', border: '1px solid #cbd5e1', borderRadius: '8px', background: '#ffffff' }} />
             </div>
 
-            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', maxHeight: '460px', overflowY: 'auto', boxShadow: '0 4px 12px rgba(0,0,0,0.02)' }}>
+            <div style={{ backgroundColor: 'white', borderRadius: '16px', padding: '20px', maxHeight: '460px', overflowY: 'auto' }}>
               <table style={{ width: '100%', borderCollapse: 'collapse', textAlign: 'left' }}>
                 <thead>
                   <tr style={{ backgroundColor: '#f8fafc', borderBottom: '2px solid #e2e8f0' }}>
@@ -299,8 +300,8 @@ function App() {
             </div>
 
             <div style={{ display: 'flex', gap: '15px', marginBottom: '25px' }}>
-              <button onClick={() => alert("Points successfully allocated across client parameters!")} style={{ background: '#16a34a', color: 'white', border: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '6px', fontWeight: '600' }}>+ Earn Points</button>
-              <button onClick={() => alert("Redemption ledger configurations updated successfully!")} style={{ background: '#dc2626', color: 'white', border: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '6px', fontWeight: '600' }}>- Redeem Points</button>
+              <button onClick={() => alert("Points successfully allocated!")} style={{ background: '#16a34a', color: 'white', border: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '6px', fontWeight: '600' }}>+ Earn Points</button>
+              <button onClick={() => alert("Redemption ledger updated!")} style={{ background: '#dc2626', color: 'white', border: 'none', cursor: 'pointer', padding: '8px 16px', borderRadius: '6px', fontWeight: '600' }}>- Redeem Points</button>
             </div>
 
             <div style={{ display: 'flex', gap: '15px', borderBottom: '2px solid #e2e8f0', paddingBottom: '10px', marginBottom: '20px' }}>
@@ -372,7 +373,7 @@ function App() {
           </div>
         )}
 
-        {/* HIGH FIDELITY 2-COLUMN FORM ENGINE */}
+        {/* HIGH-FIDELITY CONTRACT FORM */}
         {currentScreen === 'AddContractForm' && (
           <div>
             <h2 style={{ marginBottom: '25px', color: '#111625', fontWeight: '700' }}>➕ Create New Contract</h2>
@@ -421,7 +422,7 @@ function App() {
           </div>
         )}
 
-        {/* HIGH FIDELITY 3-COLUMN CUSTOMER REGISTRATION GRID */}
+        {/* HIGH-FIDELITY CUSTOMER FORM */}
         {currentScreen === 'AddCustomerForm' && (
           <div>
             <h2 style={{ marginBottom: '25px', color: '#111625', fontWeight: '700' }}>➕ Add / Edit Customer</h2>
