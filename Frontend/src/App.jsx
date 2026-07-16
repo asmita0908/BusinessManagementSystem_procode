@@ -50,8 +50,25 @@ function App() {
   const [formCustomer, setFormCustomer] = useState({ name: '', code: '', email: '', phone: '', address: '', city: '', country: 'India', level: 'Gold' });
 
   // Safe Filter Search Parsers
-  const filteredContracts = (contracts || []).filter(c => c.customer && c.customer.toLowerCase().includes(searchContract.toLowerCase()));
-  const filteredCustomers = (customers || []).filter(cust => cust.customerName && cust.customerName.toLowerCase().includes(searchCustomer.toLowerCase()));
+  // Dynamic Safe Filter Engine (Checks both Contract Name & Customer Name)
+  const filteredContracts = (contracts || []).filter(c => {
+    const query = searchContract.toLowerCase().trim();
+    if (!query) return true; // Agar search khali hai toh pure 10 records dikhao
+    
+    const cName = c.contractName ? c.contractName.toLowerCase() : '';
+    const custName = c.customer ? c.customer.toLowerCase() : '';
+    return cName.includes(query) || custName.includes(query);
+  });
+
+  // Dynamic Customer Search Engine
+  const filteredCustomers = (customers || []).filter(cust => {
+    const query = searchCustomer.toLowerCase().trim();
+    if (!query) return true;
+    
+    const custName = cust.customerName ? cust.customerName.toLowerCase() : '';
+    const custCode = cust.customerCode ? cust.customerCode.toLowerCase() : '';
+    return custName.includes(query) || custCode.includes(query);
+  });
 
   // Safe Dynamic Count Mappings for Expiry Alerts
   const expiredContractsCount = (contracts || []).filter(c => c.contractStatus === "Expired").length;
